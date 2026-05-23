@@ -1,0 +1,30 @@
+services:
+  # The name of your service
+  redis:
+    # The image you want to use
+    image: redis:latest
+    # Name of the container
+    container_name: redis-tutorial
+    # Port on which you want to run
+    ports:
+      - "6379:6379"
+    # Command you want to run 
+    command: ["redis-server", "--appendonly", "yes"]
+    # Volumes means the data will be permenantly stored
+    volumes:
+      - redis-data:/data
+
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: redis
+    volumes:
+      - mongo-data:/data/db
+
+# This is where we will be confuring the volumes
+volumes:
+  redis-data:
+  mongo-data:
