@@ -1,0 +1,26 @@
+name: Auto-generate and deploy repo structure to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # or your repository's default branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate site (no deps)
+        run: node generate-site.js
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: public
