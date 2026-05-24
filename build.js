@@ -32,8 +32,11 @@ function compile() {
     
     // Safely escape </script> tags if they occur in markdown
     const escapedMd = mdContent.replace(/<\/script>/g, '<\\/script>');
+
+    // Encode folder name to be URL-safe for relative path references
+    const encodedFolder = encodeURIComponent(section.folder);
     
-    markdownScripts += `    <script type="text/markdown" id="md-${section.id}" data-dir="${section.folder}/" data-title="${section.title}">\n${escapedMd}\n    </script>\n`;
+    markdownScripts += `    <script type="text/markdown" id="md-${section.id}" data-dir="${encodedFolder}/" data-title="${section.title}">\n${escapedMd}\n    </script>\n`;
   });
 
   // Read the HTML template

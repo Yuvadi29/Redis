@@ -801,7 +801,7 @@ git push -u origin main</code></pre>
     </div>
 
     <!-- Raw Markdown Content Scripts (Injected by build.js) -->
-        <script type="text/markdown" id="md-what-is-redis" data-dir="01-What is Redis and Why It Exists ?/" data-title="What is Redis and Why It Exists?">
+        <script type="text/markdown" id="md-what-is-redis" data-dir="01-What%20is%20Redis%20and%20Why%20It%20Exists%20%3F/" data-title="What is Redis and Why It Exists?">
 <!-- ![[What is Redis and Why it Exists ? 2026-05-23 11.35.16.excalidraw]] -->
 ![What is Redis ?](what-is-redis.png)
 ## Redis is like a in-memory Data store. It is primarily used to reduce the read pressure on the main database. It addresses bottlenecks by serving as a caching layer. 
@@ -1918,9 +1918,21 @@ A small project, but one that teaches powerful backend engineering concepts used
             // 1. Resolve relative image paths
             const images = tempDiv.querySelectorAll('img');
             images.forEach(img => {
-                const src = img.getAttribute('src');
-                if (src && !src.startsWith('http://') && !src.startsWith('https://') && !src.startsWith('/') && !src.startsWith('data:')) {
-                    img.src = dirPath + src;
+                let src = img.getAttribute('src');
+                if (src) {
+                    // Strip Markdown link angle brackets (literal or encoded)
+                    src = src.replace(/[<>]/g, '')
+                             .replace(/&lt;/g, '')
+                             .replace(/&gt;/g, '')
+                             .replace(/%3C/g, '')
+                             .replace(/%3E/g, '')
+                             .trim();
+                             
+                    if (!src.startsWith('http://') && !src.startsWith('https://') && !src.startsWith('/') && !src.startsWith('data:')) {
+                        img.src = dirPath + src;
+                    } else {
+                        img.src = src;
+                    }
                 }
                 // Add styling class
                 img.classList.add('doc-image');

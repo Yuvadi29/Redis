@@ -992,9 +992,21 @@ git push -u origin main</code></pre>
             // 1. Resolve relative image paths
             const images = tempDiv.querySelectorAll('img');
             images.forEach(img => {
-                const src = img.getAttribute('src');
-                if (src && !src.startsWith('http://') && !src.startsWith('https://') && !src.startsWith('/') && !src.startsWith('data:')) {
-                    img.src = dirPath + src;
+                let src = img.getAttribute('src');
+                if (src) {
+                    // Strip Markdown link angle brackets (literal or encoded)
+                    src = src.replace(/[<>]/g, '')
+                             .replace(/&lt;/g, '')
+                             .replace(/&gt;/g, '')
+                             .replace(/%3C/g, '')
+                             .replace(/%3E/g, '')
+                             .trim();
+                             
+                    if (!src.startsWith('http://') && !src.startsWith('https://') && !src.startsWith('/') && !src.startsWith('data:')) {
+                        img.src = dirPath + src;
+                    } else {
+                        img.src = src;
+                    }
                 }
                 // Add styling class
                 img.classList.add('doc-image');
