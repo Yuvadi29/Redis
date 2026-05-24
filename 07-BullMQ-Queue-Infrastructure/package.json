@@ -2,7 +2,7 @@
   "name": "07-bullmq-queue-infrastructure",
   "version": "1.0.0",
   "description": "",
-  "main": "api.js",
+  "main": "src/api.js",
   "type": "module",
   "scripts": {
     "dev": "node src/api.js"
