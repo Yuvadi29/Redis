@@ -1,0 +1,15 @@
+{
+  "name": "08-pub-sub-with-redis",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/api.js",
+  "type": "module",
+  "scripts": {
+    "api": "node src/api.js",
+    "subscriber": "node src/subscriber.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "ioredis": "^5.10.1"
+  }
+}
