@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redis Learning Hub - Claude Style Docs</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/redis/redis/master/images/redis-logo.png" type="image/png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Prism.js for code syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <style>
+        :root {
+            /* Claude Light Mode (Warm Paper / Terracotta) */
+            --bg-primary: #FAF6EE;
+            --bg-secondary: #F3EFE3;
+            --border-color: #E5DFD3;
+            --text-primary: #1B1816;
+            --text-secondary: #6B6661;
+            --accent: #CC5200;
+            --accent-hover: #A64200;
+            --code-bg: #F4F0E6;
+            --code-text: #1B1816;
+            --shadow: rgba(27, 24, 22, 0.06);
+            --card-bg: #FFFFFF;
+            --active-item: #EBE4D5;
+            --hover-item: #F1EAE0;
+            --success-color: #2E7D32;
+            --success-bg: #E8F5E9;
+            --transition-speed: 0.25s;
+        }
+
+        [data-theme="dark"] {
+            /* Claude Dark Mode (Charcoal / Peach-Clay) */
+            --bg-primary: #0F0E0D;
+            --bg-secondary: #181614;
+            --border-color: #2B2824;
+            --text-primary: #ECE9E2;
+            --text-secondary: #9B9690;
+            --accent: #E07A5F;
+            --accent-hover: #F2957B;
+            --code-bg: #1E1B18;
+            --code-text: #ECE9E2;
+            --shadow: rgba(0, 0, 0, 0.4);
+            --card-bg: #151312;
+            --active-item: #2B2824;
+            --hover-item: #22201D;
+            --success-color: #81C784;
+            --success-bg: #1B5E20;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+            line-height: 1.6;
+            transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+        }
+
+        /* Sidebar Styling */
+        aside {
+            width: 320px;
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-header img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+
+        .sidebar-brand {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--accent);
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+        }
+
+        .sidebar-brand span {
+            display: block;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        .sidebar-search {
+            padding: 16px 24px 8px 24px;
+        }
+
+        .search-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 14px 10px 36px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(204, 82, 0, 0.15);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        .mode-selector {
+            padding: 8px 24px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .mode-btn.active {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: #FFFFFF !important;
+        }
+
+        .mode-btn:hover:not(.active) {
+            background-color: var(--hover-item);
+            color: var(--text-primary);
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 24px;
+        }
+
+        .sidebar-menu ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+
+        .nav-link:hover {
+            background-color: var(--hover-item);
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            background-color: var(--active-item);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .search-badge {
+            background-color: var(--accent);
+            color: #FFFFFF;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .sidebar-footer {
+            padding: 20px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+        }
+
+        .footer-btn {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .footer-btn:hover {
+            background-color: var(--hover-item);
+            border-color: var(--accent);
+        }
+
+        /* Main Area Styling */
+        main {
+            margin-left: 320px;
+            flex: 1;
+            padding: 40px 60px;
+            max-width: 1200px;
+            margin-right: auto;
+            transition: margin-left var(--transition-speed) ease;
+        }
+
+        .breadcrumb {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .breadcrumb span {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        /* Documentation Content Card */
+        .doc-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 48px;
+            box-shadow: 0 4px 12px var(--shadow);
+            transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease;
+            position: relative;
+        }
+
+        /* Typography Inside Documentation */
+        .doc-content h1, .doc-content h2, .doc-content h3, .doc-content h4 {
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-primary);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-top: 36px;
+            margin-bottom: 16px;
+            line-height: 1.25;
+        }
+
+        .doc-content h1 {
+            font-size: 2.2rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+            margin-top: 0;
+            color: var(--accent);
+        }
+
+        .doc-content h2 {
+            font-size: 1.6rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .doc-content h3 {
+            font-size: 1.25rem;
+        }
+
+        .doc-content h4 {
+            font-size: 1.1rem;
+        }
+
+        .doc-content p {
+            font-size: 0.975rem;
+            color: var(--text-primary);
+            margin-bottom: 18px;
+            line-height: 1.65;
+        }
+
+        .doc-content a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s ease;
+        }
+
+        .doc-content a:hover {
+            border-bottom-color: var(--accent);
+        }
+
+        .doc-content ul, .doc-content ol {
+            margin-bottom: 18px;
+            padding-left: 24px;
+        }
+
+        .doc-content li {
+            margin-bottom: 8px;
+            font-size: 0.975rem;
+        }
+
+        .doc-content blockquote {
+            border-left: 4px solid var(--accent);
+            padding: 16px 20px;
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+            margin: 24px 0;
+            border-radius: 0 6px 6px 0;
+            font-style: italic;
+        }
+
+        /* Images inside Doc */
+        .doc-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 10px var(--shadow);
+            margin: 28px auto;
+            display: block;
+            background-color: #FFFFFF;
+            padding: 6px;
+        }
+
+        /* Tables inside Doc */
+        .doc-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .doc-content th, .doc-content td {
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        .doc-content th {
+            background-color: var(--active-item);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Code Block & Inlines */
+        .doc-content code {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: var(--code-bg);
+            color: var(--accent);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .doc-content pre {
+            background-color: var(--code-bg) !important;
+            border: 1px solid var(--border-color) !important;
+            padding: 20px !important;
+            border-radius: 8px !important;
+            overflow-x: auto;
+            margin: 24px 0 !important;
+            position: relative;
+        }
+
+        .doc-content pre code {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: transparent !important;
+            color: var(--text-primary) !important;
+            padding: 0;
+            font-size: 0.875rem;
+            font-weight: 400;
+        }
+
+        /* Mermaid Styling */
+        .mermaid {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 24px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .mermaid svg {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+
+        /* Copy Button for code blocks */
+        .copy-code-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            font-size: 0.725rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.2s ease, background-color 0.2s ease;
+        }
+
+        .doc-content pre:hover .copy-code-btn {
+            opacity: 1;
+        }
+
+        .copy-code-btn:hover {
+            background-color: var(--active-item);
+            color: var(--text-primary);
+        }
+
+        .copy-code-btn.copied {
+            background-color: var(--success-bg);
+            color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        /* Navigation Footer */
+        .doc-footer-nav {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .nav-card {
+            flex: 1;
+            padding: 20px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        .nav-card .nav-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .nav-card .nav-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--accent);
+        }
+
+        .nav-card.prev {
+            align-items: flex-start;
+        }
+
+        .nav-card.next {
+            align-items: flex-end;
+            text-align: right;
+        }
+
+        /* Modal Guide Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            max-width: 650px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 1.4rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .guide-step {
+            margin-bottom: 24px;
+        }
+
+        .guide-step h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-num {
+            background-color: var(--accent);
+            color: #FFFFFF;
+            font-size: 0.75rem;
+            font-weight: 700;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .guide-step p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            padding-left: 28px;
+        }
+
+        .guide-step pre {
+            margin-left: 28px;
+            margin-top: 8px;
+            margin-bottom: 8px;
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
+
+        /* Continuous View Mode styles */
+        .continuous-section {
+            border-bottom: 2px dashed var(--border-color);
+            padding-bottom: 40px;
+            margin-bottom: 40px;
+        }
+
+        .continuous-section:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 992px) {
+            aside {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            main {
+                margin-left: 0;
+                padding: 24px;
+            }
+            .doc-card {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside>
+        <div class="sidebar-header">
+            <img src="https://raw.githubusercontent.com/redis/redis/master/images/redis-logo.png" alt="Redis Logo">
+            <div class="sidebar-brand">
+                Redis Hub
+                <span>Claude Code Style</span>
+            </div>
+        </div>
+        
+        <div class="sidebar-search">
+            <div class="search-container">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="search-bar" class="search-input" placeholder="Search documentation...">
+            </div>
+        </div>
+
+        <div class="mode-selector">
+            <button id="mode-single" class="mode-btn active" onclick="setReadingMode('single')">Single Page</button>
+            <button id="mode-all" class="mode-btn" onclick="setReadingMode('all')">Continuous</button>
+        </div>
+
+        <nav class="sidebar-menu">
+            <ul id="sidebar-list">
+                <!-- Links will be rendered here dynamically -->
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="footer-btn" id="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                <!-- SVG Icon for Dark Mode -->
+                <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                Theme
+            </button>
+            <button class="footer-btn" onclick="openModal()" title="View Step-by-Step GitHub Pages Deployment Guide">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                Deploy
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main>
+        <div class="breadcrumb">
+            redis-learning-hub / <span id="breadcrumb-section">what-is-redis</span>
+        </div>
+        
+        <div class="doc-card">
+            <div id="content" class="doc-content">
+                <!-- Rendered Markdown goes here -->
+            </div>
+            
+            <!-- Navigation Footer -->
+            <div class="doc-footer-nav" id="doc-footer-nav">
+                <a class="nav-card prev" id="nav-prev" onclick="navigatePrev()">
+                    <span class="nav-label">Previous</span>
+                    <span class="nav-title" id="nav-prev-title">What is Redis?</span>
+                </a>
+                <a class="nav-card next" id="nav-next" onclick="navigateNext()">
+                    <span class="nav-label">Next</span>
+                    <span class="nav-title" id="nav-next-title">Redis Setup</span>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Deploy Guide Modal -->
+    <div id="deploy-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Deploy to GitHub Pages</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="guide-step">
+                    <h3><span class="step-num">1</span> Compile the Site</h3>
+                    <p>Make sure you have compiled the latest Markdown docs into `index.html` by running the build script in your terminal:</p>
+                    <pre><code>node build.js</code></pre>
+                </div>
+                <div class="guide-step">
+                    <h3><span class="step-num">2</span> Initialize Git Repository</h3>
+                    <p>If you haven't already, initialize a git repository in this project folder, stage all your files (including `index.html`, `build.js`, and all the subdirectories with their images), and commit them:</p>
+                    <pre><code>git init
+git add .
+git commit -m "feat: Add Claude-themed Redis documentation hub"</code></pre>
+                </div>
+                <div class="guide-step">
+                    <h3><span class="step-num">3</span> Create GitHub Repository & Push</h3>
+                    <p>Create a new repository on GitHub (keep it public). Link it to your local repository and push your changes to the main branch:</p>
+                    <pre><code>git remote add origin https://github.com/your-username/redis-learning-hub.git
+git branch -M main
+git push -u origin main</code></pre>
+                </div>
+                <div class="guide-step">
+                    <h3><span class="step-num">4</span> Enable GitHub Pages</h3>
+                    <p>Go to your repository on GitHub.com and perform the following configuration:</p>
+                    <p>1. Click on the <strong>Settings</strong> tab at the top right of the repo.</p>
+                    <p>2. In the left sidebar, click on <strong>Pages</strong> (under the Code and automation section).</p>
+                    <p>3. Under "Build and deployment", set the <strong>Source</strong> to <strong>Deploy from a branch</strong>.</p>
+                    <p>4. Set the branch to <strong>main</strong> and the directory to <strong>/ (root)</strong>.</p>
+                    <p>5. Click the <strong>Save</strong> button.</p>
+                </div>
+                <div class="guide-step">
+                    <h3><span class="step-num">5</span> Profit!</h3>
+                    <p>GitHub will automatically build and publish your site. In 1-2 minutes, your website will be live at:</p>
+                    <pre><code>https://your-username.github.io/redis-learning-hub/</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Raw Markdown Content Scripts (Injected by build.js) -->
+    <!-- {{MARKDOWN_SECTIONS_PLACEHOLDER}} -->
+
+    <!-- Marked JS for Markdown Parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Prism JS for Syntax Highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <!-- Mermaid ESM Integration -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        
+        // Initialize Mermaid
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        mermaid.initialize({ 
+            startOnLoad: false, 
+            theme: isDark ? 'dark' : 'neutral',
+            securityLevel: 'loose'
+        });
+        
+        window.mermaidInstance = mermaid;
+    </script>
+
+    <!-- Documentation SPA Logic -->
+    <script>
+        let sections = [];
+        let currentSectionId = '';
+        let readingMode = 'single'; // 'single' or 'all'
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load sections from embedded scripts
+            const scriptElements = document.querySelectorAll('script[type="text/markdown"]');
+            scriptElements.forEach(script => {
+                sections.push({
+                    id: script.id.replace('md-', ''),
+                    title: script.getAttribute('data-title'),
+                    dir: script.getAttribute('data-dir'),
+                    content: script.textContent
+                });
+            });
+
+            // Initialize theme from localStorage
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon();
+
+            // Set up search listener
+            document.getElementById('search-bar').addEventListener('input', (e) => {
+                runSearch(e.target.value);
+            });
+
+            // Render navigation menu in sidebar
+            renderSidebarMenu();
+
+            // Load initial section (based on hash or default to first)
+            const initialId = window.location.hash ? window.location.hash.substring(1) : (sections[0] ? sections[0].id : '');
+            if (initialId && sections.some(s => s.id === initialId)) {
+                loadSection(initialId);
+            } else if (sections[0]) {
+                loadSection(sections[0].id);
+            }
+
+            // Bind Scrollspy for 'all' mode
+            window.addEventListener('scroll', handleScrollSpy);
+        });
+
+        // Set Reading Mode
+        function setReadingMode(mode) {
+            readingMode = mode;
+            document.getElementById('mode-single').classList.toggle('active', mode === 'single');
+            document.getElementById('mode-all').classList.toggle('active', mode === 'all');
+            
+            if (mode === 'single') {
+                document.getElementById('doc-footer-nav').style.display = 'flex';
+                loadSection(currentSectionId);
+            } else {
+                document.getElementById('doc-footer-nav').style.display = 'none';
+                renderAllSections();
+            }
+        }
+
+        // Render Sidebar Menu Links
+        function renderSidebarMenu() {
+            const list = document.getElementById('sidebar-list');
+            list.innerHTML = '';
+            
+            sections.forEach(section => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.className = 'nav-link';
+                a.id = `link-${section.id}`;
+                a.setAttribute('data-id', section.id);
+                a.onclick = () => {
+                    if (readingMode === 'single') {
+                        loadSection(section.id);
+                    } else {
+                        // Scroll to section in 'all' mode
+                        const element = document.getElementById(`section-${section.id}`);
+                        if (element) {
+                            element.scrollIntoView({ behavior: 'smooth' });
+                            setActiveLink(section.id);
+                        }
+                    }
+                };
+                
+                a.innerHTML = `<span>${section.title}</span>`;
+                li.appendChild(a);
+                list.appendChild(li);
+            });
+        }
+
+        // Set Active Menu Link in Sidebar
+        function setActiveLink(id) {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            const activeLink = document.getElementById(`link-${id}`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+            
+            currentSectionId = id;
+            document.getElementById('breadcrumb-section').textContent = id;
+            if (readingMode === 'single') {
+                window.location.hash = id;
+            }
+        }
+
+        // Load a single section (Single Page Mode)
+        function loadSection(id) {
+            if (readingMode !== 'single') return;
+            
+            const section = sections.find(s => s.id === id);
+            if (!section) return;
+            
+            setActiveLink(id);
+            
+            const contentDiv = document.getElementById('content');
+            
+            // Parse Markdown
+            let parsedHtml = marked.parse(section.content);
+            
+            // Postprocess HTML
+            parsedHtml = postProcessHTML(parsedHtml, section.dir);
+            
+            contentDiv.innerHTML = parsedHtml;
+            
+            // Highlight & Render diagrams
+            postRenderActions(contentDiv);
+            
+            // Update Next/Prev navigation card buttons
+            updateNavButtons(id);
+            
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+
+        // Render all sections consecutively (Continuous Scroll Mode)
+        function renderAllSections() {
+            const contentDiv = document.getElementById('content');
+            contentDiv.innerHTML = '';
+            
+            sections.forEach(section => {
+                const secDiv = document.createElement('div');
+                secDiv.className = 'continuous-section';
+                secDiv.id = `section-${section.id}`;
+                
+                let parsedHtml = marked.parse(section.content);
+                parsedHtml = postProcessHTML(parsedHtml, section.dir);
+                secDiv.innerHTML = parsedHtml;
+                
+                contentDiv.appendChild(secDiv);
+            });
+            
+            // Highlight & Render diagrams for everything
+            postRenderActions(contentDiv);
+            
+            // Set active class to first section
+            if (sections[0]) {
+                setActiveLink(sections[0].id);
+            }
+        }
+
+        // Post-process Markdown HTML
+        function postProcessHTML(html, dirPath) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            
+            // 1. Resolve relative image paths
+            const images = tempDiv.querySelectorAll('img');
+            images.forEach(img => {
+                const src = img.getAttribute('src');
+                if (src && !src.startsWith('http://') && !src.startsWith('https://') && !src.startsWith('/') && !src.startsWith('data:')) {
+                    img.src = dirPath + src;
+                }
+                // Add styling class
+                img.classList.add('doc-image');
+            });
+            
+            // 2. Convert pre-code blocks containing Mermaid to div.mermaid
+            const codeBlocks = tempDiv.querySelectorAll('pre code.language-mermaid');
+            codeBlocks.forEach(code => {
+                const pre = code.parentElement;
+                const div = document.createElement('div');
+                div.className = 'mermaid';
+                div.textContent = code.textContent.trim();
+                pre.replaceWith(div);
+            });
+            
+            return tempDiv.innerHTML;
+        }
+
+        // Prism, Mermaid, and Copy-button rendering post-actions
+        function postRenderActions(container) {
+            // Highlight code blocks
+            Prism.highlightAllUnder(container);
+            
+            // Render Mermaid diagrams
+            if (window.mermaidInstance) {
+                const mermaidDivs = container.querySelectorAll('.mermaid');
+                if (mermaidDivs.length > 0) {
+                    try {
+                        window.mermaidInstance.run({ querySelector: '.mermaid' });
+                    } catch (e) {
+                        console.error("Mermaid parsing error:", e);
+                    }
+                }
+            }
+            
+            // Add Copy Buttons
+            const preBlocks = container.querySelectorAll('pre');
+            preBlocks.forEach(pre => {
+                if (pre.querySelector('.mermaid')) return; // ignore mermaid containers
+                
+                pre.style.position = 'relative';
+                
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-code-btn';
+                copyBtn.innerHTML = `
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    <span>Copy</span>
+                `;
+                
+                copyBtn.addEventListener('click', async () => {
+                    const code = pre.querySelector('code');
+                    const text = code ? code.innerText : pre.innerText;
+                    
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        copyBtn.classList.add('copied');
+                        copyBtn.querySelector('span').textContent = 'Copied!';
+                        copyBtn.querySelector('svg').innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
+                    } catch (err) {
+                        console.error('Failed to copy!', err);
+                    }
+                    
+                    setTimeout(() => {
+                        copyBtn.classList.remove('copied');
+                        copyBtn.querySelector('span').textContent = 'Copy';
+                        copyBtn.querySelector('svg').innerHTML = '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1">';
+                    }, 2000);
+                });
+                
+                pre.appendChild(copyBtn);
+            });
+        }
+
+        // Update Next / Prev Cards
+        function updateNavButtons(id) {
+            const index = sections.findIndex(s => s.id === id);
+            const prevCard = document.getElementById('nav-prev');
+            const nextCard = document.getElementById('nav-next');
+            
+            if (index > 0) {
+                prevCard.style.display = 'flex';
+                document.getElementById('nav-prev-title').textContent = sections[index - 1].title;
+            } else {
+                prevCard.style.display = 'none';
+            }
+            
+            if (index < sections.length - 1) {
+                nextCard.style.display = 'flex';
+                document.getElementById('nav-next-title').textContent = sections[index + 1].title;
+            } else {
+                nextCard.style.display = 'none';
+            }
+        }
+
+        function navigatePrev() {
+            const index = sections.findIndex(s => s.id === currentSectionId);
+            if (index > 0) {
+                loadSection(sections[index - 1].id);
+            }
+        }
+
+        function navigateNext() {
+            const index = sections.findIndex(s => s.id === currentSectionId);
+            if (index < sections.length - 1) {
+                loadSection(sections[index + 1].id);
+            }
+        }
+
+        // Theme Management
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon();
+            
+            // Re-initialize Mermaid with the new theme
+            if (window.mermaidInstance) {
+                window.mermaidInstance.initialize({
+                    theme: newTheme === 'dark' ? 'dark' : 'neutral'
+                });
+                // Rerender all mermaid diagrams on screen
+                const contentDiv = document.getElementById('content');
+                if (readingMode === 'single') {
+                    loadSection(currentSectionId);
+                } else {
+                    renderAllSections();
+                }
+            }
+        }
+
+        function updateThemeIcon() {
+            const theme = document.documentElement.getAttribute('data-theme');
+            const icon = document.getElementById('theme-icon');
+            if (theme === 'dark') {
+                // Moon Icon
+                icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+            } else {
+                // Sun Icon
+                icon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+            }
+        }
+
+        // Full Text Search
+        function runSearch(query) {
+            query = query.toLowerCase().trim();
+            const links = document.querySelectorAll('.nav-link');
+            let firstMatch = null;
+            
+            links.forEach(link => {
+                const sectionId = link.getAttribute('data-id');
+                const section = sections.find(s => s.id === sectionId);
+                
+                if (!query) {
+                    link.style.display = '';
+                    const badge = link.querySelector('.search-badge');
+                    if (badge) badge.remove();
+                    return;
+                }
+                
+                const title = section.title.toLowerCase();
+                const content = section.content.toLowerCase();
+                
+                let count = 0;
+                if (title.includes(query) || content.includes(query)) {
+                    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const regex = new RegExp(escapedQuery, 'g');
+                    const matchesContent = content.match(regex);
+                    const matchesTitle = title.match(regex);
+                    count = (matchesContent ? matchesContent.length : 0) + (matchesTitle ? matchesTitle.length : 0);
+                }
+                
+                if (count > 0) {
+                    link.style.display = '';
+                    if (!firstMatch) firstMatch = sectionId;
+                    
+                    let badge = link.querySelector('.search-badge');
+                    if (!badge) {
+                        badge = document.createElement('span');
+                        badge.className = 'search-badge';
+                        link.appendChild(badge);
+                    }
+                    badge.textContent = count;
+                } else {
+                    link.style.display = 'none';
+                }
+            });
+            
+            // In Continuous Mode: Show/Hide actual section containers on search
+            if (readingMode === 'all') {
+                sections.forEach(section => {
+                    const element = document.getElementById(`section-${section.id}`);
+                    if (element) {
+                        if (!query) {
+                            element.style.display = '';
+                        } else {
+                            const link = document.getElementById(`link-${section.id}`);
+                            element.style.display = link.style.display === 'none' ? 'none' : '';
+                        }
+                    }
+                });
+            }
+            
+            // In Single Page Mode: Switch to first match if current section is hidden by search
+            if (query && firstMatch && readingMode === 'single') {
+                const currentLink = document.getElementById(`link-${currentSectionId}`);
+                if (currentLink && currentLink.style.display === 'none') {
+                    loadSection(firstMatch);
+                }
+            }
+        }
+
+        // Scrollspy for Continuous View Mode
+        function handleScrollSpy() {
+            if (readingMode !== 'all') return;
+            
+            const scrollPosition = window.scrollY + 100; // offset
+            
+            for (let i = 0; i < sections.length; i++) {
+                const section = sections[i];
+                const element = document.getElementById(`section-${section.id}`);
+                
+                if (element && element.style.display !== 'none') {
+                    const top = element.offsetTop;
+                    const height = element.offsetHeight;
+                    
+                    if (scrollPosition >= top && scrollPosition < top + height) {
+                        // Avoid trigger loop
+                        if (currentSectionId !== section.id) {
+                            document.querySelectorAll('.nav-link').forEach(link => {
+                                link.classList.remove('active');
+                            });
+                            const link = document.getElementById(`link-${section.id}`);
+                            if (link) link.classList.add('active');
+                            currentSectionId = section.id;
+                            document.getElementById('breadcrumb-section').textContent = section.id;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Modal Operations
+        function openModal() {
+            document.getElementById('deploy-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('deploy-modal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside contents
+        window.onclick = function(event) {
+            const modal = document.getElementById('deploy-modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>

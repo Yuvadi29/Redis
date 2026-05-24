@@ -1,0 +1,2185 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redis Learning Hub - Claude Style Docs</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/redis/redis/master/images/redis-logo.png" type="image/png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Prism.js for code syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <style>
+        :root {
+            /* Claude Light Mode (Warm Paper / Terracotta) */
+            --bg-primary: #FAF6EE;
+            --bg-secondary: #F3EFE3;
+            --border-color: #E5DFD3;
+            --text-primary: #1B1816;
+            --text-secondary: #6B6661;
+            --accent: #CC5200;
+            --accent-hover: #A64200;
+            --code-bg: #F4F0E6;
+            --code-text: #1B1816;
+            --shadow: rgba(27, 24, 22, 0.06);
+            --card-bg: #FFFFFF;
+            --active-item: #EBE4D5;
+            --hover-item: #F1EAE0;
+            --success-color: #2E7D32;
+            --success-bg: #E8F5E9;
+            --transition-speed: 0.25s;
+        }
+
+        [data-theme="dark"] {
+            /* Claude Dark Mode (Charcoal / Peach-Clay) */
+            --bg-primary: #0F0E0D;
+            --bg-secondary: #181614;
+            --border-color: #2B2824;
+            --text-primary: #ECE9E2;
+            --text-secondary: #9B9690;
+            --accent: #E07A5F;
+            --accent-hover: #F2957B;
+            --code-bg: #1E1B18;
+            --code-text: #ECE9E2;
+            --shadow: rgba(0, 0, 0, 0.4);
+            --card-bg: #151312;
+            --active-item: #2B2824;
+            --hover-item: #22201D;
+            --success-color: #81C784;
+            --success-bg: #1B5E20;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+            line-height: 1.6;
+            transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+        }
+
+        /* Sidebar Styling */
+        aside {
+            width: 320px;
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-header img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+
+        .sidebar-brand {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--accent);
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+        }
+
+        .sidebar-brand span {
+            display: block;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        .sidebar-search {
+            padding: 16px 24px 8px 24px;
+        }
+
+        .search-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 14px 10px 36px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(204, 82, 0, 0.15);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        .mode-selector {
+            padding: 8px 24px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .mode-btn.active {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: #FFFFFF !important;
+        }
+
+        .mode-btn:hover:not(.active) {
+            background-color: var(--hover-item);
+            color: var(--text-primary);
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 24px;
+        }
+
+        .sidebar-menu ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+
+        .nav-link:hover {
+            background-color: var(--hover-item);
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            background-color: var(--active-item);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .search-badge {
+            background-color: var(--accent);
+            color: #FFFFFF;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .sidebar-footer {
+            padding: 20px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+        }
+
+        .footer-btn {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .footer-btn:hover {
+            background-color: var(--hover-item);
+            border-color: var(--accent);
+        }
+
+        /* Main Area Styling */
+        main {
+            margin-left: 320px;
+            flex: 1;
+            padding: 40px 60px;
+            max-width: 1200px;
+            margin-right: auto;
+            transition: margin-left var(--transition-speed) ease;
+        }
+
+        .breadcrumb {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .breadcrumb span {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        /* Documentation Content Card */
+        .doc-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 48px;
+            box-shadow: 0 4px 12px var(--shadow);
+            transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease;
+            position: relative;
+        }
+
+        /* Typography Inside Documentation */
+        .doc-content h1, .doc-content h2, .doc-content h3, .doc-content h4 {
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-primary);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-top: 36px;
+            margin-bottom: 16px;
+            line-height: 1.25;
+        }
+
+        .doc-content h1 {
+            font-size: 2.2rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+            margin-top: 0;
+            color: var(--accent);
+        }
+
+        .doc-content h2 {
+            font-size: 1.6rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .doc-content h3 {
+            font-size: 1.25rem;
+        }
+
+        .doc-content h4 {
+            font-size: 1.1rem;
+        }
+
+        .doc-content p {
+            font-size: 0.975rem;
+            color: var(--text-primary);
+            margin-bottom: 18px;
+            line-height: 1.65;
+        }
+
+        .doc-content a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s ease;
+        }
+
+        .doc-content a:hover {
+            border-bottom-color: var(--accent);
+        }
+
+        .doc-content ul, .doc-content ol {
+            margin-bottom: 18px;
+            padding-left: 24px;
+        }
+
+        .doc-content li {
+            margin-bottom: 8px;
+            font-size: 0.975rem;
+        }
+
+        .doc-content blockquote {
+            border-left: 4px solid var(--accent);
+            padding: 16px 20px;
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+            margin: 24px 0;
+            border-radius: 0 6px 6px 0;
+            font-style: italic;
+        }
+
+        /* Images inside Doc */
+        .doc-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 10px var(--shadow);
+            margin: 28px auto;
+            display: block;
+            background-color: #FFFFFF;
+            padding: 6px;
+        }
+
+        /* Tables inside Doc */
+        .doc-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .doc-content th, .doc-content td {
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        .doc-content th {
+            background-color: var(--active-item);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Code Block & Inlines */
+        .doc-content code {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: var(--code-bg);
+            color: var(--accent);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .doc-content pre {
+            background-color: var(--code-bg) !important;
+            border: 1px solid var(--border-color) !important;
+            padding: 20px !important;
+            border-radius: 8px !important;
+            overflow-x: auto;
+            margin: 24px 0 !important;
+            position: relative;
+        }
+
+        .doc-content pre code {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: transparent !important;
+            color: var(--text-primary) !important;
+            padding: 0;
+            font-size: 0.875rem;
+            font-weight: 400;
+        }
+
+        /* Mermaid Styling */
+        .mermaid {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 24px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .mermaid svg {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+
+        /* Copy Button for code blocks */
+        .copy-code-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            font-size: 0.725rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.2s ease, background-color 0.2s ease;
+        }
+
+        .doc-content pre:hover .copy-code-btn {
+            opacity: 1;
+        }
+
+        .copy-code-btn:hover {
+            background-color: var(--active-item);
+            color: var(--text-primary);
+        }
+
+        .copy-code-btn.copied {
+            background-color: var(--success-bg);
+            color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        /* Navigation Footer */
+        .doc-footer-nav {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .nav-card {
+            flex: 1;
+            padding: 20px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        .nav-card .nav-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .nav-card .nav-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--accent);
+        }
+
+        .nav-card.prev {
+            align-items: flex-start;
+        }
+
+        .nav-card.next {
+            align-items: flex-end;
+            text-align: right;
+        }
+
+        /* Modal Guide Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            max-width: 650px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 1.4rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .guide-step {
+            margin-bottom: 24px;
+        }
+
+        .guide-step h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-num {
+            background-color: var(--accent);
+            color: #FFFFFF;
+            font-size: 0.75rem;
+            font-weight: 700;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .guide-step p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            padding-left: 28px;
+        }
+
+        .guide-step pre {
+            margin-left: 28px;
+            margin-top: 8px;
+            margin-bottom: 8px;
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
+
+        /* Continuous View Mode styles */
+        .continuous-section {
+            border-bottom: 2px dashed var(--border-color);
+            padding-bottom: 40px;
+            margin-bottom: 40px;
+        }
+
+        .continuous-section:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 992px) {
+            aside {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            main {
+                margin-left: 0;
+                padding: 24px;
+            }
+            .doc-card {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside>
+        <div class="sidebar-header">
+            <img src="https://raw.githubusercontent.com/redis/redis/master/images/redis-logo.png" alt="Redis Logo">
+            <div class="sidebar-brand">
+                Redis Hub
+                <span>Claude Code Style</span>
+            </div>
+        </div>
+        
+        <div class="sidebar-search">
+            <div class="search-container">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="search-bar" class="search-input" placeholder="Search documentation...">
+            </div>
+        </div>
+
+        <div class="mode-selector">
+            <button id="mode-single" class="mode-btn active" onclick="setReadingMode('single')">Single Page</button>
+            <button id="mode-all" class="mode-btn" onclick="setReadingMode('all')">Continuous</button>
+        </div>
+
+        <nav class="sidebar-menu">
+            <ul id="sidebar-list">
+                <!-- Links will be rendered here dynamically -->
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="footer-btn" id="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                <!-- SVG Icon for Dark Mode -->
+                <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                Theme
+            </button>
+            <button class="footer-btn" onclick="openModal()" title="View Step-by-Step GitHub Pages Deployment Guide">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                Deploy
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main>
+        <div class="breadcrumb">
+            redis-learning-hub / <span id="breadcrumb-section">what-is-redis</span>
+        </div>
+        
+        <div class="doc-card">
+            <div id="content" class="doc-content">
+                <!-- Rendered Markdown goes here -->
+            </div>
+            
+            <!-- Navigation Footer -->
+            <div class="doc-footer-nav" id="doc-footer-nav">
+                <a class="nav-card prev" id="nav-prev" onclick="navigatePrev()">
+                    <span class="nav-label">Previous</span>
+                    <span class="nav-title" id="nav-prev-title">What is Redis?</span>
+                </a>
+                <a class="nav-card next" id="nav-next" onclick="navigateNext()">
+                    <span class="nav-label">Next</span>
+                    <span class="nav-title" id="nav-next-title">Redis Setup</span>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Deploy Guide Modal -->
+    <div id="deploy-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Deploy to GitHub Pages</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="guide-step">
+                    <h3><span class="step-num">1</span> Compile the Site</h3>
+                    <p>Make sure you have compiled the latest Markdown docs into `index.html` by running the build script in your terminal:</p>
+                    <pre><code>node build.js</code></pre>
+                </div>
+                <div class="guide-step">
+                    <h3><span class="step-num">2</span> Initialize Git Repository</h3>
+                    <p>If you haven't already, initialize a git repository in this project folder, stage all your files (including `index.html`, `build.js`, and all the subdirectories with their images), and commit them:</p>
+                    <pre><code>git init
+git add .
+git commit -m "feat: Add Claude-themed Redis documentation hub"</code></pre>
+                </div>
+                <div class="guide-step">
+                    <h3><span class="step-num">3</span> Create GitHub Repository & Push</h3>
+                    <p>Create a new repository on GitHub (keep it public). Link it to your local repository and push your changes to the main branch:</p>
+                    <pre><code>git remote add origin https://github.com/your-username/redis-learning-hub.git
+git branch -M main
+git push -u origin main</code></pre>
+                </div>
+                <div class="guide-step">
+                    <h3><span class="step-num">4</span> Enable GitHub Pages</h3>
+                    <p>Go to your repository on GitHub.com and perform the following configuration:</p>
+                    <p>1. Click on the <strong>Settings</strong> tab at the top right of the repo.</p>
+                    <p>2. In the left sidebar, click on <strong>Pages</strong> (under the Code and automation section).</p>
+                    <p>3. Under "Build and deployment", set the <strong>Source</strong> to <strong>Deploy from a branch</strong>.</p>
+                    <p>4. Set the branch to <strong>main</strong> and the directory to <strong>/ (root)</strong>.</p>
+                    <p>5. Click the <strong>Save</strong> button.</p>
+                </div>
+                <div class="guide-step">
+                    <h3><span class="step-num">5</span> Profit!</h3>
+                    <p>GitHub will automatically build and publish your site. In 1-2 minutes, your website will be live at:</p>
+                    <pre><code>https://your-username.github.io/redis-learning-hub/</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Raw Markdown Content Scripts (Injected by build.js) -->
+        <script type="text/markdown" id="md-what-is-redis" data-dir="01-What is Redis and Why It Exists ?/" data-title="What is Redis and Why It Exists?">
+<!-- ![[What is Redis and Why it Exists ? 2026-05-23 11.35.16.excalidraw]] -->
+![What is Redis ?](what-is-redis.png)
+## Redis is like a in-memory Data store. It is primarily used to reduce the read pressure on the main database. It addresses bottlenecks by serving as a caching layer. 
+## It is crucial to remember that Redis is not a replacement for your database.  
+## Redis stores the state in RAM and hence it is said to be FAST.
+
+<!-- ![[What is Redis and Why it Exists ? 2026-05-23 11.43.57.excalidraw]] -->
+![Basic Working](basic-working.png)
+## Use Cases of Redis:
+<!-- ![[What is Redis and Why it Exists ? 2026-05-23 11.54.53.excalidraw]] -->
+![Use Cases](usecase.png)
+- **Caching:** Storing frequently accessed data to speed up response times.
+- **Session Storage:** Managing user login states across multiple servers.
+- **OTP/Temporary Data:** Storing short-lived information like OTPs that don't need permanent storage.
+- **Rate Limiting:** Tracking and limiting the number of requests a user can make within a specific timeframe.
+- **Job Queues:** Managing background tasks, such as email processing or bulk notifications, using lists.
+## Core Mechanics:
+It works on **Key-Value** pair structure. A critical Feature is **TTL(Time to Live)**, which allows developers to set an expiration on records so that they are automatically cleaned up, which is perfect for temporary data like OTPs.
+## Guidelines for Implementation:
+- Redis is **not a solution for every problem**. It should be utilized specifically when you need to remove read bottlenecks, store temporary/expiring data, use shared counters, or handle background job queues.
+## Alternatives to Redis:
+- Because Redis is so popular, many 'drop-in replacements' have emerged that offer similar functionality without requiring code changes. Notable mentions include **KeyDB**, **DragonflyDB**, and **Valkey**.
+    </script>
+    <script type="text/markdown" id="md-redis-setup" data-dir="02-Redis-Setup/" data-title="Redis Setup with Docker and Node.js">
+# Just remember, Redis does not depend on what is the kind of Database you are using.
+
+### We are going to use Docker here. So the first task is to create a docker-compose.yml file.
+
+## Understanding `docker-compose.yml`
+
+This `docker-compose.yml` file is like a blueprint that tells Docker how to set up and run multiple related services (like our Redis and MongoDB databases) together. It makes it super easy to get our development environment running with a single command.
+
+Let's break down each part:
+
+1.  **`services`**:
+    *   This is the main section where we define all the different applications or "services" that our project needs. Each service will run in its own isolated container.
+
+2.  **`redis` Service**:
+    *   This defines our Redis database service.
+    *   `image: redis:latest`: This tells Docker to download and use the latest official Redis image from Docker Hub. An "image" is a lightweight, standalone, executable package that includes everything needed to run a piece of software.
+    *   `container_name: redis-tutorial`: We're giving our Redis container a friendly, easy-to-remember name. This makes it easier to refer to it later (e.g., in Docker commands).
+    *   `ports: - "6379:6379"`: This is crucial for accessing Redis from our Node.js application (or from our host machine). It maps port `6379` on our computer (the "host") to port `6379` inside the Redis container. So, when our Node.js app tries to connect to `localhost:6379`, it's actually connecting to the Redis container.
+    *   `command: ["redis-server", "--appendonly", "yes"]`: This specifies the command that Docker should run when the Redis container starts. Here, we're starting the `redis-server` and enabling `appendonly yes`, which is a persistence option for Redis to make sure our data isn't lost if the container restarts.
+    *   `volumes: - redis-data:/data`: This sets up a "volume" for Redis. Volumes are how Docker stores data persistently. This line tells Docker to take the `/data` directory *inside* the Redis container (where Redis stores its data) and link it to a named Docker volume called `redis-data`. This means even if you stop, remove, or recreate the Redis container, your Redis data will still be safe in the `redis-data` volume.
+
+3.  **`mongo` Service**:
+    *   This defines our MongoDB database service.
+    *   `image: mongo:7`: This tells Docker to use the official MongoDB image, specifically version 7.
+    *   `container_name: mongo`: We're naming our MongoDB container "mongo" for easy identification.
+    *   `ports: - "27017:27017"`: Similar to Redis, this maps port `27017` on our host machine to port `27017` inside the MongoDB container. This is the default port for MongoDB.
+    *   `environment: MONGO_INITDB_DATABASE: redis`: This sets an environment variable *inside* the MongoDB container. When MongoDB starts, it will automatically create a database named `redis` for us, which is handy for our `index.js` file that expects to connect to a database called `redis`.
+    *   `volumes: - mongo-data:/data/db`: This sets up a persistent volume for MongoDB. The `/data/db` directory *inside* the MongoDB container (where MongoDB stores its database files) is linked to a named Docker volume called `mongo-data`. This ensures our MongoDB data remains intact across container restarts.
+
+4.  **`volumes` (bottom section)**:
+    *   This section at the bottom is where we formally declare the named volumes that we used in our services.
+    *   `redis-data:` and `mongo-data:`: By simply listing them here, Docker knows to create and manage these volumes for us, ensuring data persistence for our Redis and MongoDB services.
+
+In essence, `docker-compose.yml` allows us to define our entire multi-container application stack in a single file, making it incredibly easy to start, stop, and manage our development environment consistently. It ensures that both Redis and MongoDB are running and correctly configured when we need them.
+
+Start the service by using `docker compose up`. Initially it will take time to start for the first time. During this time it will fetch the images and install it on your machine. Once completed, you will be able to see the services running on your Docker Desktop like this.
+
+![Docker Desktop Applications](<docker-desktop-service.png>)
+
+Next is to setup a `package.json` with the following packages: 
+- express
+- mongoose
+- ioredis
+
+Once you are done with installing the packages, go ahead with creating `index.js` under `src` folder and copy the code into the `index.js`
+
+## Understanding `src/index.js`
+
+This `index.js` file sets up a simple web server using Node.js and the Express framework. It demonstrates how to connect to both a Redis server and a MongoDB database.
+
+Here's a breakdown of what each part does:
+
+1.  **Setting up the Web Server with Express:**
+    *   `import express from "express";`: This line brings in the Express library, which helps us create a web application easily.
+    *   `const app = express();`: This creates an instance of our Express application.
+
+2.  **Connecting to Redis with `ioredis`:**
+    *   `import Redis from "ioredis";`: This imports the `ioredis` library, a powerful client for interacting with Redis.
+    *   `const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');`: This line establishes a connection to your Redis server. It first checks for an environment variable named `REDIS_URL`. If that's not set (which is common in development), it defaults to connecting to Redis on your local machine at `localhost:6379`, which is the standard port for Redis. This is especially useful when running Redis in a Docker container.
+    *   **`/ping` Endpoint:**
+        *   `app.get('/ping', async (req,res) => { ... });`: This sets up a special address on our web server: `/ping`. When you visit `http://localhost:3000/ping` in your browser or with a tool, this code runs.
+        *   `const reply = await redis.ping();`: Inside this endpoint, we tell Redis to send back a "PONG" response. This is a simple way to check if our Redis connection is active and working.
+        *   `res.json({ redis: reply });`: The server then sends back a JSON response showing the reply from Redis (which should be "PONG").
+
+3.  **Connecting to MongoDB with `mongoose`:**
+    *   `import mongoose from "mongoose";`: This imports the Mongoose library, which is a popular tool for interacting with MongoDB databases in Node.js. It helps manage data relationships, schema validation, and more.
+    *   **`/mongo` Endpoint:**
+        *   `app.get('/mongo', async (req,res) => { ... });`: This sets up another address on our web server: `/mongo`. Visiting `http://localhost:3000/mongo` will trigger this code.
+        *   `const url = process.env.MONGO_URL || 'mongodb://localhost:27017/redis';`: Similar to Redis, this line tries to get the MongoDB connection string from an environment variable `MONGO_URL`. If it's not found, it defaults to connecting to a MongoDB instance on `localhost:27017` (the default MongoDB port) and connects to a database named `redis`.
+        *   `if(mongoose.connection.readyState === 0){ await mongoose.connect(url); }`: This important check ensures that we only try to connect to MongoDB if we aren't already connected. `readyState === 0` means disconnected.
+        *   `res.json({ mongo: 'Connected', database: mongoose.connection.name });`: If the connection is successful (or already established), the server sends back a JSON response confirming the connection and showing the name of the connected database.
+
+4.  **Starting the Server:**
+    *   `app.listen(3000, () => { console.log("Server Running on 3000"); });`: This line starts our Express web server. It tells the server to listen for incoming requests on port `3000`. Once the server is running, you'll see "Server Running on 3000" in your console.
+
+In summary, this `index.js` file provides a basic setup for a Node.js application that can interact with both Redis (for fast caching or messaging) and MongoDB (for a more traditional database). It's a great starting point for building more complex applications that leverage these powerful tools.
+
+
+    </script>
+    <script type="text/markdown" id="md-site-banner-apis" data-dir="03-Site-Banner-APIs/" data-title="Site Banner APIs with Redis">
+# Site Banner APIs with Redis
+
+This project implements a simple set of APIs for managing a site banner using Express.js and Redis. Redis is utilized as a fast in-memory data store for quick retrieval and management of the banner message.
+
+## What are Site Banner APIs?
+
+Site banner APIs typically allow dynamic management of messages displayed prominently on a website or application (e.g., for announcements, alerts, or promotional messages). These messages often need to be updated frequently and retrieved very quickly by many users, making Redis an excellent choice for storage due to its performance characteristics.
+
+## How Redis is Used
+
+Redis acts as a central, high-performance key-value store for the site banner message.
+-   **Key:** `app:banner` is used to store the single banner message.
+-   **Operations:** Redis's `SET`, `GET`, `DEL`, and `EXISTS` commands are directly mapped to API endpoints for creating/updating, reading, deleting, and checking the presence of the banner, respectively.
+This approach ensures low-latency access to the banner content, crucial for user-facing elements.
+
+## API Endpoints
+
+The application exposes the following RESTful API endpoints:
+
+### `POST /banner`
+
+*   **Description:** Creates or updates the site banner message.
+*   **Method:** `POST`
+*   **Body:** `application/json`
+    ```json
+    {
+      "message": "Your new banner message here!"
+    }
+    ```
+*   **Default Message:** If `message` is not provided in the request body, it defaults to "Welcome to Redis!!".
+*   **Redis Operation:** `SET app:banner <message>`
+*   **Example Response:**
+    ```json
+    {
+      "success": true
+    }
+    ```
+
+### `GET /banner`
+
+*   **Description:** Retrieves the current site banner message.
+*   **Method:** `GET`
+*   **Redis Operation:** `GET app:banner`
+*   **Example Response:**
+    ```json
+    {
+      "message": "Your current banner message."
+    }
+    ```
+    If no banner is set, `message` will be `null`.
+
+### `DELETE /banner`
+
+*   **Description:** Deletes the site banner message.
+*   **Method:** `DELETE`
+*   **Redis Operation:** `DEL app:banner`
+*   **Example Response:**
+    ```json
+    {
+      "success": true
+    }
+    ```
+
+### `GET /banner/exist`
+
+*   **Description:** Checks if a site banner message currently exists.
+*   **Method:** `GET`
+*   **Redis Operation:** `EXISTS app:banner`
+*   **Example Response:**
+    ```json
+    {
+      "exists": true
+    }
+    ```
+    or
+    ```json
+    {
+      "exists": false
+    }
+    ```
+
+## Diagrams
+
+### 1. Overall Architecture Flow
+
+```mermaid
+graph TD
+    A[Client Application] -- HTTP Request --> B(Express.js API)
+    B -- Redis Command (SET, GET, DEL, EXISTS) --> C[Redis Server]
+    C -- Redis Response --> B
+    B -- HTTP Response --> A
+```
+**Explanation:** The client (e.g., a web browser or another service) makes an HTTP request to the Express.js API. The API then interacts with the Redis server to perform the requested operation (setting, getting, deleting, or checking existence of the banner). Redis responds to the API, which in turn sends an HTTP response back to the client.
+
+### 2. POST /banner Flow
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant A as Express.js API
+    participant R as Redis Server
+
+    C->>A: POST /banner { "message": "New Banner" }
+    A->>R: SET app:banner "New Banner"
+    R-->>A: OK
+    A-->>C: { "success": true }
+```
+**Explanation:** The client sends a `POST` request to `/banner` with a new message. The Express.js API instructs Redis to `SET` the `app:banner` key with this message. Redis confirms the operation, and the API sends a success response back to the client.
+
+### 3. GET /banner Flow
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant A as Express.js API
+    participant R as Redis Server
+
+    C->>A: GET /banner
+    A->>R: GET app:banner
+    R-->>A: "Current Banner Message"
+    A-->>C: { "message": "Current Banner Message" }
+```
+**Explanation:** The client sends a `GET` request to `/banner`. The Express.js API queries Redis for the value associated with `app:banner`. Redis returns the stored message, which the API then sends back to the client.
+
+## Getting Started
+
+To run this application:
+
+1.  **Ensure Redis is running:** You can use Docker or install it directly.
+    *   If using Docker, ensure your `docker-compose.yml` includes a Redis service.
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+3.  **Set Redis URL (if not default):**
+    Set the `REDIS_URL` environment variable if your Redis instance is not at `redis://localhost:6379/`.
+4.  **Start the application:**
+    ```bash
+    npm start # Or node src/index.js
+    ```
+    The server will run on `http://localhost:3000`.
+
+    </script>
+    <script type="text/markdown" id="md-otp-verification" data-dir="04-OTP-Verification/" data-title="OTP Verification Service with Redis">
+# OTP Verification Service with Redis
+
+This project implements a simple One-Time Password (OTP) verification service using Express.js as the API framework and Redis as the highly performant, in-memory data store for managing OTPs.
+
+## What is OTP Verification?
+
+OTP (One-Time Password) verification is a security mechanism where a unique, temporary numeric or alphanumeric string is sent to a user's registered contact method (e.g., phone number, email) to authenticate their identity for a single transaction or login session. It enhances security by adding a second factor of authentication.
+
+## How Redis is Used for OTPs
+
+Redis is an ideal choice for storing OTPs due to its speed, simplicity, and built-in support for time-to-live (TTL) for keys.
+*   **Fast Storage and Retrieval:** OTPs need to be generated and verified quickly. Redis's in-memory nature ensures low-latency operations.
+*   **Automatic Expiration (TTL):** Each OTP stored in Redis is given a short expiration time (e.g., 30 seconds). This ensures that OTPs are temporary and cannot be reused after a certain period, which is crucial for security.
+*   **Key-Value Store:** OTPs are stored with a key derived from the user's phone number (`otp:<phone_number>`), making them easy to retrieve and manage.
+
+## API Endpoints
+
+The application exposes the following RESTful API endpoints for OTP management:
+
+### 1. `POST /otp` (Generate OTP)
+
+*   **Description:** Generates a new 6-digit OTP for a given phone number and stores it in Redis with a 30-second expiry.
+*   **Method:** `POST`
+*   **Request Body:** `application/json`
+    ```json
+    {
+      "phone": "1234567890"
+    }
+    ```
+*   **Validation:** Returns `400 Bad Request` if `phone` is missing.
+*   **Redis Operation:** `SET otp:<phone> <otp_code> EX 30`
+*   **Success Response:** `200 OK`
+    ```json
+    {
+      "message": "OTP sent",
+      "otp": "123456" // In a real application, this OTP would be sent via SMS/email.
+    }
+    ```
+*   **Flow Diagram (OTP Generation):**
+    ```mermaid
+    sequenceDiagram
+        participant C as Client
+        participant A as Express.js API
+        participant R as Redis Server
+
+        C->>A: POST /otp { "phone": "1234567890" }
+        A->>A: Generate 6-digit OTP
+        A->>R: SET otp:1234567890 "123456" EX 30
+        R-->>A: OK
+        A-->>C: { "message": "OTP sent", "otp": "123456" }
+    ```
+
+### 2. `POST /otp/verify` (Verify OTP)
+
+*   **Description:** Verifies if the provided OTP matches the one stored for the given phone number. If successful, the OTP is deleted from Redis.
+*   **Method:** `POST`
+*   **Request Body:** `application/json`
+    ```json
+    {
+      "phone": "1234567890",
+      "otp": "123456"
+    }
+    ```
+*   **Validation:** Returns `400 Bad Request` if `phone` or `otp` is missing.
+*   **Redis Operations:**
+    *   `GET otp:<phone>`
+    *   `DEL otp:<phone>` (on successful verification)
+*   **Success Response:** `200 OK`
+    ```json
+    {
+      "message": "OTP Verified Successfully"
+    }
+    ```
+*   **Error Responses:** `400 Bad Request`
+    ```json
+    {
+      "message": "OTP expired or not found"
+    }
+    ```
+    or
+    ```json
+    {
+      "message": "Invalid OTP"
+    }
+    ```
+*   **Flow Diagram (OTP Verification):**
+    ```mermaid
+    sequenceDiagram
+        participant C as Client
+        participant A as Express.js API
+        participant R as Redis Server
+
+        C->>A: POST /otp/verify { "phone": "1234567890", "otp": "123456" }
+        A->>R: GET otp:1234567890
+        R-->>A: "123456" (or nil if expired/not found)
+        alt OTP Found and Matches
+            A->>R: DEL otp:1234567890
+            R-->>A: OK
+            A-->>C: { "message": "OTP Verified Successfully" }
+        else OTP Expired/Not Found
+            A-->>C: { "message": "OTP expired or not found" }
+        else OTP Mismatch
+            A-->>C: { "message": "Invalid OTP" }
+        end
+    ```
+
+### 3. `GET /otp/:phone/ttl` (Get OTP Time-To-Live)
+
+*   **Description:** Retrieves the remaining time-to-live (in seconds) for the OTP associated with a specific phone number.
+*   **Method:** `GET`
+*   **URL Parameter:** `:phone` (e.g., `/otp/1234567890/ttl`)
+*   **Redis Operation:** `TTL otp:<phone>`
+*   **Success Response:** `200 OK`
+    ```json
+    {
+      "ttl": 25 // Remaining seconds until OTP expires
+    }
+    ```
+    *   `ttl: -2`: Indicates the key (OTP) does not exist.
+    *   `ttl: -1`: Indicates the key exists but has no associated expire.
+
+## Getting Started
+
+To run this OTP verification service:
+
+1.  **Ensure Redis is running:** You can use Docker or install it directly.
+    *   If using Docker, ensure your `docker-compose.yml` includes a Redis service.
+2.  **Navigate to the project directory:**
+    ```bash
+    cd 04-OTP-Verification
+    ```
+3.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+4.  **Set Redis URL (if not default):**
+    Set the `REDIS_URL` environment variable if your Redis instance is not at `redis://localhost:6379/`.
+5.  **Start the application:**
+    ```bash
+    npm run dev
+    ```
+    The server will run on `http://localhost:3000`.
+
+Now you can use tools like `curl` or Postman to interact with the API endpoints.
+
+    </script>
+    <script type="text/markdown" id="md-user-profile" data-dir="05-User-Profile/" data-title="User Profile Storage with Redis">
+# User Profile Storage with Redis
+
+This project demonstrates two different ways to store user profiles in Redis using Node.js with Express and `ioredis`.
+
+## Implementation Details
+
+The application provides API endpoints to store and retrieve user profiles. It uses `express` for handling HTTP requests and `ioredis` for connecting to Redis.
+
+**Redis Connection:**
+The application connects to Redis using the `REDIS_URL` environment variable or defaults to `redis://localhost:6379/`.
+
+### 1. Storing User Profiles as JSON Strings
+
+This method stores the entire user profile object as a JSON string under a single Redis key.
+
+*   **Redis Command Used:** `SET`
+*   **Use Case:** Simple storage and retrieval where the entire object is usually accessed at once.
+
+**Endpoints:**
+
+*   **POST `/user/:id/json`**: Stores a user profile as a JSON string.
+    *   **Request Body Example:**
+        ```json
+        {
+            "name": "Alice",
+            "email": "alice@example.com",
+            "age": 30
+        }
+        ```
+    *   **Example `curl` command to SET:**
+        ```bash
+        curl -X POST -H "Content-Type: application/json" -d '{"name": "Alice", "email": "alice@example.com", "age": 30}' http://localhost:3000/user/1/json
+        ```
+
+*   **GET `/user/:id/json`**: Retrieves a user profile stored as a JSON string.
+    *   **Example `curl` command to GET:**
+        ```bash
+        curl http://localhost:3000/user/1/json
+        ```
+
+### 2. Storing User Profiles as Redis Hashes
+
+This method stores each field of the user profile object as a separate field within a Redis Hash data structure.
+
+*   **Redis Command Used:** `HSET`, `HGETALL`
+*   **Use Case:** Efficiently retrieving or updating individual fields of an object without fetching the entire object.
+
+**Endpoints:**
+
+*   **POST `/user/:id/hash`**: Stores a user profile as a Redis Hash. Each key-value pair in the request body becomes a field-value pair in the Redis Hash.
+    *   **Request Body Example:**
+        ```json
+        {
+            "name": "Bob",
+            "email": "bob@example.com",
+            "age": 25
+        }
+        ```
+    *   **Example `curl` command to HSET:**
+        ```bash
+        curl -X POST -H "Content-Type: application/json" -d '{"name": "Bob", "email": "bob@example.com", "age": 25}' http://localhost:3000/user/2/hash
+        ```
+
+*   **GET `/user/:id/hash`**: Retrieves all fields and values of a user profile stored as a Redis Hash.
+    *   **Example `curl` command to HGETALL:**
+        ```bash
+        curl http://localhost:3000/user/2/hash
+        ```
+
+## Running the Application
+
+1.  **Install Dependencies:**
+    ```bash
+    npm install
+    ```
+2.  **Start Redis Server:**
+    Ensure a Redis server is running, e.g., via Docker Compose as defined in `../../docker-compose.yml`.
+3.  **Start the Node.js Application:**
+    ```bash
+    npm start # Or node src/index.js
+    ```
+    The server will run on `http://localhost:3000`.
+
+    </script>
+    <script type="text/markdown" id="md-email-queues" data-dir="06-Email-Queues/" data-title="Email Queues Drawbacks">
+Drawbacks:
+- Job loss 
+- No retry mechanism
+- No parallel workers
+    </script>
+    <script type="text/markdown" id="md-bullmq-queue" data-dir="07-BullMQ-Queue-Infrastructure/" data-title="BullMQ Queue Infrastructure">
+# BullMQ Queue Infrastructure
+
+This project demonstrates a basic message queue infrastructure using BullMQ, a robust, Redis-backed queue for Node.js. It illustrates the producer-consumer pattern, where an API acts as a producer adding jobs to a queue, and a separate worker process consumes and processes these jobs.
+
+## Architecture
+
+The system follows a classic message queue pattern as depicted below:
+
+![Architecture of Bull MQ](image.png)
+
+*   **Producer (API)**: Adds jobs to the message queue. In this setup, an Express API endpoint serves as the producer for "welcome email" jobs.
+*   **Message Queue (Redis + BullMQ)**: Acts as an intermediary, storing jobs reliably until they can be processed. BullMQ uses Redis to persist job data, ensuring durability and reliability.
+*   **Consumers (Workers)**: Processes jobs from the message queue. A separate Node.js script runs a BullMQ worker that picks up and executes the "welcome email" jobs.
+
+## Implementation Details
+
+The project consists of three main parts:
+
+### 1. `src/queue.js` - Queue Configuration
+
+This file initializes the BullMQ queue and defines the connection to Redis.
+
+*   **`emailQueue`**: A BullMQ `Queue` instance named `emails`. This is where all email-related jobs are added and processed.
+*   **`connection`**: Defines the Redis connection parameters. By default, it connects to Redis running on `localhost:6379`.
+
+```javascript
+// src/queue.js
+import { Queue } from 'bullmq'
+
+const connection = {
+  host: 'localhost',
+  port: 6379
+}
+
+const emailQueue = new Queue('emails', { connection })
+
+module.exports = {
+  emailQueue,
+  connection
+}
+```
+
+### 2. `src/api.js` - Job Producer (API)
+
+This Express application acts as the producer. It exposes an endpoint that, when hit, adds a new job to the `emailQueue`.
+
+*   **Endpoint**: `POST /welcome-email`
+    *   Accepts `to` and `name` in the request body.
+    *   Adds a job named `send-welcome-email` to the `emailQueue`.
+    *   **Job Configuration**:
+        *   `attempts: 3`: The job will be retried up to 3 times if it fails.
+        *   `backoff: { type: 'exponential', delay: 1000 }`: Retries will occur with an exponentially increasing delay, starting from 1 second.
+*   **Server**: Listens on port `3000`.
+
+```javascript
+// src/api.js
+import express from 'express'
+import { emailQueue } from './queue.js'
+
+const app = express()
+app.use(express.json())
+
+app.post('/welcome-email', async (req, res) => {
+  const job = await emailQueue.add( // Changed to await to get job.id
+    'send-welcome-email',
+    {
+      to: req.body.to,
+      name: req.body.name || 'Learner'
+    },
+    {
+      attempts: 3,
+      backoff: {
+        type: 'exponential',
+        delay: 1000
+      }
+    }
+  )
+  res.json({
+    message: 'Welcome email job added to queue',
+    jobId: job.id
+  })
+})
+
+app.listen(3000, () => {
+  console.log('Server Running on 3000')
+})
+```
+
+### 3. `src/worker.js` - Job Consumer (Worker)
+
+This script runs the BullMQ worker that listens to the `emails` queue and processes the jobs.
+
+*   **`Worker`**: Instantiated with the queue name `emails` and the Redis `connection`.
+*   **Job Processing Logic**: The `async job => { ... }` function defines what happens when a job is received. In this example, it simulates an email sending process with a 1.5-second delay and logs the job details.
+*   **Event Listeners**:
+    *   `worker.on('completed', job => { ... })`: Logs a message when a job successfully completes.
+    *   `worker.on('failed', job => { ... })`: Logs a message when a job fails.
+
+```javascript
+// src/worker.js
+import { Worker } from 'bullmq'
+import { connection } from './queue'
+
+const worker = new Worker(
+  'emails',
+  async job => {
+    console.log('Processing email Job...', job.id, job.name, job.data)
+    await new Promise(resolve => setTimeout(resolve, 1500)) // Simulate async work
+    console.log('Email Job Completed!!', job.id, job.name, job.data)
+  },
+  { connection }
+)
+
+worker.on('completed', job => {
+  console.log('Job Completed!!', job.id, job.name, job.data)
+})
+
+worker.on('failed', job => {
+  console.log('Job Failed!!', job.id, job.name, job.data)
+})
+```
+
+## Setup and Running
+
+To run this application, you need a running Redis instance and Node.js.
+
+### Prerequisites
+
+*   Node.js (v14 or higher)
+*   Redis (v6 or higher)
+
+### Steps
+
+1.  **Install Dependencies:**
+    Navigate to the `07-BullMQ-Queue-Infrastructure` directory and install the required packages:
+    ```bash
+    npm install
+    ```
+
+2.  **Start Redis Server:**
+    Ensure your Redis server is running. If you have a `docker-compose.yml` file in the parent directory, you can start it using:
+    ```bash
+    docker-compose up -d redis
+    ```
+    (Adjust the service name if different)
+
+3.  **Start the Worker Process:**
+    Open a new terminal window, navigate to the project directory, and start the worker. This process will listen for and consume jobs from the queue.
+    ```bash
+    npm run worker
+    ```
+    You should see output like: `BullMQ Worker started.` (This is a placeholder log, the actual worker doesn't log "started" by default, but it will start processing.)
+
+4.  **Start the API (Producer) Process:**
+    Open another terminal window, navigate to the project directory, and start the API server. This server will allow you to add jobs to the queue.
+    ```bash
+    npm start
+    ```
+    You should see output like: `Server Running on 3000`
+
+### Adding Jobs to the Queue (Using the API)
+
+Once both the worker and API are running, you can add jobs using `curl`.
+
+**Example:** Send a welcome email job.
+
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"to": "test@example.com", "name": "Gemini Learner"}' http://localhost:3000/welcome-email
+```
+
+Upon executing the `curl` command, you should see a response from the API indicating the job has been added. Simultaneously, in the terminal running `src/worker.js`, you will observe logs showing the job being processed and then completed.
+
+    </script>
+    <script type="text/markdown" id="md-pub-sub" data-dir="08-Pub-Sub-With-Redis/" data-title="Redis Pub/Sub (Publish/Subscribe) Example">
+# Redis Pub/Sub (Publish/Subscribe) Example
+
+This project demonstrates the Publish/Subscribe (Pub/Sub) messaging paradigm using Redis. It showcases how a publisher can send messages to a channel without knowing which subscribers are listening, and how multiple subscribers can receive messages published to that channel.
+
+## Architecture
+
+The Redis Pub/Sub model works as follows:
+
+![Architecture](image.png)
+
+*   **Redis Pub/Sub**: The core messaging system. Redis acts as a message broker, managing channels and distributing messages to subscribers.
+*   **Publisher (App/Service)**: An application or service that sends messages to a specific channel. In this example, `src/api.js` acts as the publisher. Publishers are decoupled from subscribers.
+*   **Channel**: A named entity in Redis to which messages are sent by publishers and from which messages are received by subscribers. Subscribers express interest in one or more channels.
+*   **Subscribers**: Applications or services that listen for messages on one or more channels. In this example, `src/subscriber.js` acts as a subscriber.
+    *   **Active Subscribers (A, B)**: Actively connected to Redis and listening to the channel. They will receive all messages published to that channel.
+    *   **Inactive Subscribers (C)**: Not currently connected. They will *not* receive messages published while they are disconnected. Redis Pub/Sub does not persist messages for disconnected clients.
+
+## Implementation Details
+
+The project consists of two main Node.js applications:
+
+### 1. `src/api.js` - The Publisher
+
+This Express application acts as the message publisher. It provides an HTTP endpoint to trigger message publishing to a Redis channel.
+
+*   **Redis Connection**: Initializes an `ioredis` client (`publisher`) to connect to Redis. It uses `process.env.REDIS_URL` or defaults to `redis://localhost:6379`.
+*   **Endpoint**: `POST /notifications`
+    *   Expects an optional `title` in the request body.
+    *   Constructs a payload including the title and a timestamp.
+    *   **`publisher.publish('notifications', JSON.stringify(payload))`**: This is the core Pub/Sub command. It publishes the JSON stringified payload to the Redis channel named `notifications`.
+    *   The API's response indicates how many subscribers received the message.
+*   **Server**: Listens for HTTP requests on port `3000`.
+
+```javascript
+// src/api.js
+import express from 'express'
+import Redis from 'ioredis'
+
+const app = express()
+app.use(express.json())
+
+const publisher = new Redis(process.env.REDIS_URL || 'redis://localhost:6379')
+
+app.post('/notifications', async (req, res) => {
+  const payload = {
+    title: req.body.title || 'Default',
+    createdAt: new Date().toISOString()
+  }
+
+  // Publishes the message to the 'notifications' channel
+  const receivers = await publisher.publish(
+    'notifications',
+    JSON.stringify(payload)
+  )
+  res.json({
+    message: `Notifications sent to ${receivers} subscribers`
+  })
+})
+
+app.listen(3000, () => {
+  console.log('Server Running on 3000')
+})
+```
+
+### 2. `src/subscriber.js` - The Subscriber
+
+This Node.js script acts as a message subscriber. It connects to Redis and listens for messages on a specific channel.
+
+*   **Redis Connection**: Initializes a separate `ioredis` client (`subscriber`) for subscribing. Pub/Sub commands require a dedicated client connection in `ioredis`.
+*   **`subscriber.subscribe('notifications', ...)`**: Instructs Redis to start sending messages from the `notifications` channel to this client.
+*   **`subscriber.on('message', (channel, message) => { ... })`**: An event listener that triggers every time a message is received on a subscribed channel.
+    *   It logs the channel name and the parsed JSON message content to the console.
+
+```javascript
+// src/subscriber.js
+import Redis from 'ioredis'
+
+const subscriber = new Redis(process.env.REDIS_URL || 'redis://localhost:6379')
+
+subscriber.subscribe('notifications', err => {
+  if (err) {
+    console.error('Failed to Subscribe: %s', err.message)
+    return
+  }
+  console.log('Subscribed Successfully to "notifications" channel!')
+})
+
+subscriber.on('message', (channel, message) => {
+  console.log('Received message on', channel, ':', JSON.parse(message))
+})
+```
+
+## Setup and Running
+
+To run this application, you need a running Redis instance and Node.js.
+
+### Prerequisites
+
+*   Node.js (v14 or higher)
+*   Redis (v6 or higher)
+
+### Steps
+
+1.  **Install Dependencies:**
+    Navigate to the `08-Pub-Sub-With-Redis` directory and install the required packages:
+    ```bash
+    npm install
+    ```
+
+2.  **Start Redis Server:**
+    Ensure your Redis server is running. If you have a `docker-compose.yml` file in the parent directory, you can start it using:
+    ```bash
+    docker-compose up -d redis
+    ```
+    (Adjust the service name if different)
+
+3.  **Start the Subscriber Process:**
+    Open a new terminal window, navigate to the project directory, and start the subscriber.
+    ```bash
+    npm run subscriber
+    ```
+    You should see `Subscribed Successfully to "notifications" channel!` in the console. You can open multiple terminal windows and run this command multiple times to have multiple active subscribers.
+
+4.  **Start the API (Publisher) Process:**
+    Open another terminal window, navigate to the project directory, and start the API server.
+    ```bash
+    npm run api
+    ```
+    You should see `Server Running on 3000` in the console.
+
+### Publishing Messages (Using the API)
+
+Once the subscriber(s) and API are running, you can publish messages using `curl`.
+
+**Example:** Send a notification message.
+
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"title": "New user registered!"}' http://localhost:3000/notifications
+```
+
+Upon executing the `curl` command, you should see a response from the API (e.g., `{"message":"Notifications sent to 1 subscribers"}`). In the terminal(s) running `src/subscriber.js`, you will observe the received message being logged.
+
+    </script>
+    <script type="text/markdown" id="md-live-leaderboard" data-dir="09-Live-Dashboard-Assignment/" data-title="Redis Live Leaderboard">
+# 🚀 Redis Live Leaderboard
+
+A simple real-time leaderboard system built to understand the true power of Redis beyond caching.
+
+This project demonstrates how platforms like gaming systems, coding contests, fantasy sports apps, and analytics dashboards manage rankings and scores instantly — even under heavy traffic.
+
+The goal of this project was to build a system where:
+
+- users can gain points
+- rankings update automatically
+- top users can be fetched instantly
+- individual ranks can be tracked in real-time
+- post/article views can be counted efficiently
+
+---
+
+# 📌 How It Works
+
+The application provides APIs that allow users to:
+
+- increase scores
+- update rankings
+- fetch leaderboard data
+- get individual user ranks
+- track article views
+
+Whenever a user gains points, the leaderboard automatically updates and reorders users based on their scores.
+
+---
+
+# 🏆 Add Score to Leaderboard
+
+This endpoint allows users to gain points.
+
+Example:
+A user named `aditya` receives `100` points.
+
+The leaderboard updates instantly.
+
+## 📸 Request + Response
+
+![Add Score](image.png)
+---
+
+# 📊 Fetch Leaderboard
+
+This endpoint returns the top users from the leaderboard.
+
+The leaderboard automatically sorts users based on their score in descending order.
+
+## 📸 Leaderboard Output
+
+![Get Leaderboard](image-1.png)
+
+---
+
+# 🎯 Get User Rank
+
+This endpoint retrieves the exact rank of a specific user.
+
+Instead of manually calculating rankings, Redis handles everything internally and returns the rank instantly.
+
+## 📸 User Rank Response
+
+![Get Rank](image-2.png)
+
+---
+
+# 👀 Post View Counter
+
+The project also includes a simple post view counter system.
+
+Whenever someone opens a post/article, the view count increases automatically.
+
+This is useful for:
+
+- blogs
+- analytics dashboards
+- content platforms
+- social media systems
+
+---
+
+# 🌍 Real-World Use Cases
+
+This type of leaderboard system is commonly used in:
+
+- Gaming Platforms
+- Fantasy Sports Apps
+- Coding Contest Websites
+- Live Streaming Platforms
+- Analytics Dashboards
+- Social Media Applications
+
+---
+
+# 🚀 What I Learned
+
+While building this project, I understood:
+
+- how real-time rankings work
+- how scalable leaderboard systems are designed
+- how Redis handles sorting and ranking internally
+- why Redis is extremely powerful for live systems
+
+This project was a great way to move beyond theory and actually build something used in production-level applications.
+
+---
+
+# ⭐ Final Thoughts
+
+This project helped me understand how modern applications handle:
+
+- real-time data
+- live rankings
+- high-speed updates
+- scalable leaderboard systems
+
+A small project, but one that teaches powerful backend engineering concepts used across the industry.
+
+    </script>
+
+
+    <!-- Marked JS for Markdown Parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Prism JS for Syntax Highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <!-- Mermaid ESM Integration -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        
+        // Initialize Mermaid
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        mermaid.initialize({ 
+            startOnLoad: false, 
+            theme: isDark ? 'dark' : 'neutral',
+            securityLevel: 'loose'
+        });
+        
+        window.mermaidInstance = mermaid;
+    </script>
+
+    <!-- Documentation SPA Logic -->
+    <script>
+        let sections = [];
+        let currentSectionId = '';
+        let readingMode = 'single'; // 'single' or 'all'
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load sections from embedded scripts
+            const scriptElements = document.querySelectorAll('script[type="text/markdown"]');
+            scriptElements.forEach(script => {
+                sections.push({
+                    id: script.id.replace('md-', ''),
+                    title: script.getAttribute('data-title'),
+                    dir: script.getAttribute('data-dir'),
+                    content: script.textContent
+                });
+            });
+
+            // Initialize theme from localStorage
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon();
+
+            // Set up search listener
+            document.getElementById('search-bar').addEventListener('input', (e) => {
+                runSearch(e.target.value);
+            });
+
+            // Render navigation menu in sidebar
+            renderSidebarMenu();
+
+            // Load initial section (based on hash or default to first)
+            const initialId = window.location.hash ? window.location.hash.substring(1) : (sections[0] ? sections[0].id : '');
+            if (initialId && sections.some(s => s.id === initialId)) {
+                loadSection(initialId);
+            } else if (sections[0]) {
+                loadSection(sections[0].id);
+            }
+
+            // Bind Scrollspy for 'all' mode
+            window.addEventListener('scroll', handleScrollSpy);
+        });
+
+        // Set Reading Mode
+        function setReadingMode(mode) {
+            readingMode = mode;
+            document.getElementById('mode-single').classList.toggle('active', mode === 'single');
+            document.getElementById('mode-all').classList.toggle('active', mode === 'all');
+            
+            if (mode === 'single') {
+                document.getElementById('doc-footer-nav').style.display = 'flex';
+                loadSection(currentSectionId);
+            } else {
+                document.getElementById('doc-footer-nav').style.display = 'none';
+                renderAllSections();
+            }
+        }
+
+        // Render Sidebar Menu Links
+        function renderSidebarMenu() {
+            const list = document.getElementById('sidebar-list');
+            list.innerHTML = '';
+            
+            sections.forEach(section => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.className = 'nav-link';
+                a.id = `link-${section.id}`;
+                a.setAttribute('data-id', section.id);
+                a.onclick = () => {
+                    if (readingMode === 'single') {
+                        loadSection(section.id);
+                    } else {
+                        // Scroll to section in 'all' mode
+                        const element = document.getElementById(`section-${section.id}`);
+                        if (element) {
+                            element.scrollIntoView({ behavior: 'smooth' });
+                            setActiveLink(section.id);
+                        }
+                    }
+                };
+                
+                a.innerHTML = `<span>${section.title}</span>`;
+                li.appendChild(a);
+                list.appendChild(li);
+            });
+        }
+
+        // Set Active Menu Link in Sidebar
+        function setActiveLink(id) {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            const activeLink = document.getElementById(`link-${id}`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+            
+            currentSectionId = id;
+            document.getElementById('breadcrumb-section').textContent = id;
+            if (readingMode === 'single') {
+                window.location.hash = id;
+            }
+        }
+
+        // Load a single section (Single Page Mode)
+        function loadSection(id) {
+            if (readingMode !== 'single') return;
+            
+            const section = sections.find(s => s.id === id);
+            if (!section) return;
+            
+            setActiveLink(id);
+            
+            const contentDiv = document.getElementById('content');
+            
+            // Parse Markdown
+            let parsedHtml = marked.parse(section.content);
+            
+            // Postprocess HTML
+            parsedHtml = postProcessHTML(parsedHtml, section.dir);
+            
+            contentDiv.innerHTML = parsedHtml;
+            
+            // Highlight & Render diagrams
+            postRenderActions(contentDiv);
+            
+            // Update Next/Prev navigation card buttons
+            updateNavButtons(id);
+            
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+
+        // Render all sections consecutively (Continuous Scroll Mode)
+        function renderAllSections() {
+            const contentDiv = document.getElementById('content');
+            contentDiv.innerHTML = '';
+            
+            sections.forEach(section => {
+                const secDiv = document.createElement('div');
+                secDiv.className = 'continuous-section';
+                secDiv.id = `section-${section.id}`;
+                
+                let parsedHtml = marked.parse(section.content);
+                parsedHtml = postProcessHTML(parsedHtml, section.dir);
+                secDiv.innerHTML = parsedHtml;
+                
+                contentDiv.appendChild(secDiv);
+            });
+            
+            // Highlight & Render diagrams for everything
+            postRenderActions(contentDiv);
+            
+            // Set active class to first section
+            if (sections[0]) {
+                setActiveLink(sections[0].id);
+            }
+        }
+
+        // Post-process Markdown HTML
+        function postProcessHTML(html, dirPath) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            
+            // 1. Resolve relative image paths
+            const images = tempDiv.querySelectorAll('img');
+            images.forEach(img => {
+                const src = img.getAttribute('src');
+                if (src && !src.startsWith('http://') && !src.startsWith('https://') && !src.startsWith('/') && !src.startsWith('data:')) {
+                    img.src = dirPath + src;
+                }
+                // Add styling class
+                img.classList.add('doc-image');
+            });
+            
+            // 2. Convert pre-code blocks containing Mermaid to div.mermaid
+            const codeBlocks = tempDiv.querySelectorAll('pre code.language-mermaid');
+            codeBlocks.forEach(code => {
+                const pre = code.parentElement;
+                const div = document.createElement('div');
+                div.className = 'mermaid';
+                div.textContent = code.textContent.trim();
+                pre.replaceWith(div);
+            });
+            
+            return tempDiv.innerHTML;
+        }
+
+        // Prism, Mermaid, and Copy-button rendering post-actions
+        function postRenderActions(container) {
+            // Highlight code blocks
+            Prism.highlightAllUnder(container);
+            
+            // Render Mermaid diagrams
+            if (window.mermaidInstance) {
+                const mermaidDivs = container.querySelectorAll('.mermaid');
+                if (mermaidDivs.length > 0) {
+                    try {
+                        window.mermaidInstance.run({ querySelector: '.mermaid' });
+                    } catch (e) {
+                        console.error("Mermaid parsing error:", e);
+                    }
+                }
+            }
+            
+            // Add Copy Buttons
+            const preBlocks = container.querySelectorAll('pre');
+            preBlocks.forEach(pre => {
+                if (pre.querySelector('.mermaid')) return; // ignore mermaid containers
+                
+                pre.style.position = 'relative';
+                
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-code-btn';
+                copyBtn.innerHTML = `
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    <span>Copy</span>
+                `;
+                
+                copyBtn.addEventListener('click', async () => {
+                    const code = pre.querySelector('code');
+                    const text = code ? code.innerText : pre.innerText;
+                    
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        copyBtn.classList.add('copied');
+                        copyBtn.querySelector('span').textContent = 'Copied!';
+                        copyBtn.querySelector('svg').innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
+                    } catch (err) {
+                        console.error('Failed to copy!', err);
+                    }
+                    
+                    setTimeout(() => {
+                        copyBtn.classList.remove('copied');
+                        copyBtn.querySelector('span').textContent = 'Copy';
+                        copyBtn.querySelector('svg').innerHTML = '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1">';
+                    }, 2000);
+                });
+                
+                pre.appendChild(copyBtn);
+            });
+        }
+
+        // Update Next / Prev Cards
+        function updateNavButtons(id) {
+            const index = sections.findIndex(s => s.id === id);
+            const prevCard = document.getElementById('nav-prev');
+            const nextCard = document.getElementById('nav-next');
+            
+            if (index > 0) {
+                prevCard.style.display = 'flex';
+                document.getElementById('nav-prev-title').textContent = sections[index - 1].title;
+            } else {
+                prevCard.style.display = 'none';
+            }
+            
+            if (index < sections.length - 1) {
+                nextCard.style.display = 'flex';
+                document.getElementById('nav-next-title').textContent = sections[index + 1].title;
+            } else {
+                nextCard.style.display = 'none';
+            }
+        }
+
+        function navigatePrev() {
+            const index = sections.findIndex(s => s.id === currentSectionId);
+            if (index > 0) {
+                loadSection(sections[index - 1].id);
+            }
+        }
+
+        function navigateNext() {
+            const index = sections.findIndex(s => s.id === currentSectionId);
+            if (index < sections.length - 1) {
+                loadSection(sections[index + 1].id);
+            }
+        }
+
+        // Theme Management
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon();
+            
+            // Re-initialize Mermaid with the new theme
+            if (window.mermaidInstance) {
+                window.mermaidInstance.initialize({
+                    theme: newTheme === 'dark' ? 'dark' : 'neutral'
+                });
+                // Rerender all mermaid diagrams on screen
+                const contentDiv = document.getElementById('content');
+                if (readingMode === 'single') {
+                    loadSection(currentSectionId);
+                } else {
+                    renderAllSections();
+                }
+            }
+        }
+
+        function updateThemeIcon() {
+            const theme = document.documentElement.getAttribute('data-theme');
+            const icon = document.getElementById('theme-icon');
+            if (theme === 'dark') {
+                // Moon Icon
+                icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+            } else {
+                // Sun Icon
+                icon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+            }
+        }
+
+        // Full Text Search
+        function runSearch(query) {
+            query = query.toLowerCase().trim();
+            const links = document.querySelectorAll('.nav-link');
+            let firstMatch = null;
+            
+            links.forEach(link => {
+                const sectionId = link.getAttribute('data-id');
+                const section = sections.find(s => s.id === sectionId);
+                
+                if (!query) {
+                    link.style.display = '';
+                    const badge = link.querySelector('.search-badge');
+                    if (badge) badge.remove();
+                    return;
+                }
+                
+                const title = section.title.toLowerCase();
+                const content = section.content.toLowerCase();
+                
+                let count = 0;
+                if (title.includes(query) || content.includes(query)) {
+                    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const regex = new RegExp(escapedQuery, 'g');
+                    const matchesContent = content.match(regex);
+                    const matchesTitle = title.match(regex);
+                    count = (matchesContent ? matchesContent.length : 0) + (matchesTitle ? matchesTitle.length : 0);
+                }
+                
+                if (count > 0) {
+                    link.style.display = '';
+                    if (!firstMatch) firstMatch = sectionId;
+                    
+                    let badge = link.querySelector('.search-badge');
+                    if (!badge) {
+                        badge = document.createElement('span');
+                        badge.className = 'search-badge';
+                        link.appendChild(badge);
+                    }
+                    badge.textContent = count;
+                } else {
+                    link.style.display = 'none';
+                }
+            });
+            
+            // In Continuous Mode: Show/Hide actual section containers on search
+            if (readingMode === 'all') {
+                sections.forEach(section => {
+                    const element = document.getElementById(`section-${section.id}`);
+                    if (element) {
+                        if (!query) {
+                            element.style.display = '';
+                        } else {
+                            const link = document.getElementById(`link-${section.id}`);
+                            element.style.display = link.style.display === 'none' ? 'none' : '';
+                        }
+                    }
+                });
+            }
+            
+            // In Single Page Mode: Switch to first match if current section is hidden by search
+            if (query && firstMatch && readingMode === 'single') {
+                const currentLink = document.getElementById(`link-${currentSectionId}`);
+                if (currentLink && currentLink.style.display === 'none') {
+                    loadSection(firstMatch);
+                }
+            }
+        }
+
+        // Scrollspy for Continuous View Mode
+        function handleScrollSpy() {
+            if (readingMode !== 'all') return;
+            
+            const scrollPosition = window.scrollY + 100; // offset
+            
+            for (let i = 0; i < sections.length; i++) {
+                const section = sections[i];
+                const element = document.getElementById(`section-${section.id}`);
+                
+                if (element && element.style.display !== 'none') {
+                    const top = element.offsetTop;
+                    const height = element.offsetHeight;
+                    
+                    if (scrollPosition >= top && scrollPosition < top + height) {
+                        // Avoid trigger loop
+                        if (currentSectionId !== section.id) {
+                            document.querySelectorAll('.nav-link').forEach(link => {
+                                link.classList.remove('active');
+                            });
+                            const link = document.getElementById(`link-${section.id}`);
+                            if (link) link.classList.add('active');
+                            currentSectionId = section.id;
+                            document.getElementById('breadcrumb-section').textContent = section.id;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Modal Operations
+        function openModal() {
+            document.getElementById('deploy-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('deploy-modal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside contents
+        window.onclick = function(event) {
+            const modal = document.getElementById('deploy-modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
