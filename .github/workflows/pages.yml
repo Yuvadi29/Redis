@@ -3,7 +3,7 @@ name: Auto-generate and deploy repo structure to GitHub Pages
 on:
   push:
     branches:
-      - main  # or your repository's default branch
+      - master  # or your repository's default branch
 
 jobs:
   build-and-deploy:
